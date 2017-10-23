@@ -57,7 +57,6 @@ function DOMNode_getElementsInPath($node, $path)
 	{
 		if($i==$lastIndex)
 		{
-			error_log("finding children with tag ".$pathPart);
 			return DOMNode_getChildElements($node, $pathPart);
 		}
 		else
@@ -65,10 +64,8 @@ function DOMNode_getElementsInPath($node, $path)
 			$node = DOMNode_getFirstChildElement($node, $pathPart);
 			if($node===null)
 			{
-				error_log("couldn't find element with tag ".$pathPart);
 				return [];
 			}
-			error_log("found node with tag ".$pathPart);
 		}
 		$i++;
 	}
