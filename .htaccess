@@ -1,0 +1,41 @@
+# Enable rewrite for all urls except ones that point to existing files
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Block private folders
+RedirectMatch 403 ^/private/
+RedirectMatch 403 ^/.git/
+
+# Block private files
+<Files .htaccess>
+Order Allow,Deny
+Deny from all
+</Files>
+
+<Files README.md>
+Order Allow,Deny
+Deny from all
+</Files>
+
+<Files .git>
+Order Allow,Deny
+Deny from all
+</Files>
+
+<Files .gitignore>
+Order Allow,Deny
+Deny from all
+</Files>
+
+<Files .gitmodules>
+Order Allow,Deny
+Deny from all
+</Files>
+
+<Files private>
+Order Allow,Deny
+Deny from all
+</Files>
+
+# Redirect all other requests to index.php
+RewriteRule ^(.*)$ /index.php [QSA]

@@ -1,0 +1,3 @@
+[submodule "private/external/PHPMailer"]
+	path = private/external/PHPMailer
+	url = https://github.com/PHPMailer/PHPMailer
