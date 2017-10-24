@@ -16,6 +16,7 @@ class User
 	public $lastname = null;
 	public $username = null;
 	public $email = null;
+	public $password = null;
 	public $validation_code = null;
 	public $reset_pw_token = null;
 
@@ -26,6 +27,7 @@ class User
 		$this->lastname = $row["lastname"];
 		$this->username = $row["username"];
 		$this->email = $row["email"];
+		$this->password = $row["password"];
 		$this->validation_code = $row["validation_code"];
 		$this->reset_pw_token = $row["reset_pw_token"];
 	}
@@ -93,34 +95,29 @@ class User
 	{
 		global $mysql;
 		
-		$required_fields = ["firstname", "lastname", "email", "username", "password"];
-		foreach($required_fields as $field)
+		//validate fields
+		$requestdata = validate_data($signup_data, [
+			"firstname" => ["req"=>true, "type"=>"string"],
+			"lastname" => ["req"=>true, "type"=>"string"],
+			"email" => ["req"=>true, "type"=>"email"],
+			"username" => ["req"=>true, "type"=>"string"],
+			"password" => ["req"=>true, "type"=>"string", "minlength"=>5, "maxlength"=>24]
+		], $error);
+		if($requestdata==null)
 		{
-			if(empty($signup_data[$field]))
-			{
-				$error = 'Missing required parameter "'.$field.'"';
-				return false;
-			}
+			return false;
 		}
 		
-		$firstname = $signup_data["firstname"];
-		$lastname = $signup_data["lastname"];
-		$email = $signup_data["email"];
-		$username = $signup_data["username"];
-		$password = $signup_data["password"];
+		//get fields
+		$firstname = $requestdata["firstname"];
+		$lastname = $requestdata["lastname"];
+		$email = $requestdata["email"];
+		$username = $requestdata["username"];
+		$password = $requestdata["password"];
 
-		if(!filter_var($email, FILTER_VALIDATE_EMAIL))
-		{
-			$error = "Invalid Email Address";
-			return false;
-		}
-
-		if(strlen($password) < 5 || strlen($password) > 24)
-		{
-			$error = "Password must be between 8 and 24 characters";
-			return false;
-		}
-
+		//create escaped fields
+		$escaped_firstname = $mysql->real_escape_string($firstname);
+		$escaped_lastname = $mysql->real_escape_string($lastname);
 		$escaped_email = $mysql->real_escape_string(strtolower($email));
 		$escaped_username = $mysql->real_escape_string($username);
 		$escaped_lcase_username = $mysql->real_escape_string(strtolower($username));
@@ -140,6 +137,7 @@ class User
 			$result->free();
 			return false;
 		}
+		
 		//check if username exists
 		$result = $mysql->query('select username from user where lcase(username)="'.$escaped_lcase_username.'"');
 		if($result === false)
@@ -153,9 +151,6 @@ class User
 			$result->free();
 			return false;
 		}
-		
-		$escaped_firstname = $mysql->real_escape_string($firstname);
-		$escaped_lastname = $mysql->real_escape_string($lastname);
 		
 		//actually add the user
 		$validation_code = random_hexstring(32);
@@ -176,58 +171,53 @@ class User
 		return true;
 	}
 
-	private static function start_session($username, &$error)
+	private static function start_session($user_id, &$error)
 	{
-		$user = self::get_user_by_username($username);
+		$user = self::get_user_by_id($user_id);
 		if($user == null)
 		{
-			$error = "No account exists with this email";
+			$error = "No account exists with this id";
 			return false;
 		}
 
 		session_start();
 		$_SESSION["user_id"] = $user->id;
-		$_SESSION["user_email"] = $user->email;
-
-		$GLOBALS["user"] = $user;
+		$GLOBALS["__logged_in_user"] = $user;
 		return true;
 	}
 
 	public static function login($username, $password, &$error = null)
 	{
 		global $mysql;
-		if(!empty(session_id()))
+		
+		//check if user is logged in
+		if(isset($GLOBALS["__logged_in_user"]))
 		{
-			$error = "user already logged in";
+			$error = "a user is already logged in";
 			return false;
 		}
-		$escaped_username = $mysql->real_escape_string(strtolower($username));
-		$result = $mysql->query('select * from user where email="'.$escaped_username.'"');
-		if($result == false)
-		{
-			$error = "internal error";
-			return false;
-		}
-		else if($result->num_rows == 0)
+		
+		//find user
+		$user = get_user_by_username($usernae);
+		if($user==null)
 		{
 			$error = "Invalid username / password";
-			$result->free();
 			return false;
 		}
-		$row = $result->fetch_assoc();
-		if(!password_verify($password.self::PASS_SALT, $row["password"]))
+		
+		//verify password
+		if(!password_verify($password.self::PASS_SALT, $user->password))
 		{
 			$error = "Invalid username / password";
-			$result->free();
 			return false;
 		}
-		else if(!empty($row["validation_code"]))
+		else if(!empty($user->validation_code))
 		{
 			$error = 'Check your inbox or spam for a validation link';
-			$result->free();
 			return false;
 		}
-		$result->free();
+		
+		//start session
 		if(!self::start_session($username, $error))
 		{
 			return false;
@@ -242,18 +232,25 @@ class User
 			return false;
 		}
 		session_start();
-		if(!isset($_SESSION["user_id"]) || !isset($_SESSION["user_email"]))
+		if(!isset($_SESSION["user_id"]))
 		{
 			session_destroy();
 			return false;
 		}
-		$GLOBALS["user"] = self::get_user_by_id($_SESSION["user_id"]);
+		$user = self::get_user_by_id($_SESSION["user_id"]);
+		if($user==null)
+		{
+			session_destroy();
+			return false;
+		}
+		$GLOBALS["__logged_in_user"] = $user;
 		return true;
 	}
 
 	public static function logout()
 	{
 		session_destroy();
+		unset($GLOBALS["__logged_in_user"]);
 	}
 
 	public static function validate_email($email, $validation_code, &$error = null)

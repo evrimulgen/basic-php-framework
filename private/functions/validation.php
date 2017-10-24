@@ -5,12 +5,27 @@ function validate_data($requestdata, $fields, &$error)
 	$validated_data = [];
 	foreach($fields as $field => $field_info)
 	{
-		$field_required = $field_info["req"];
-		$field_type = $field_info["type"];
+		$field_required = $field_info["req"] ?? false;
+		$field_type = $field_info["type"] ?? "string";
+		$field_minlength = $field_info["minlength"] ?? null;
+		$field_maxlength = $field_info["maxlength"] ?? null;
 		
 		if(isset($requestdata[$field]))
 		{
 			$value = $requestdata[$field];
+			
+			//check field length
+			if($field_minlength !== null && strlen($value) < $field_minlength)
+			{
+				$error = $field." field cannot be shorter than ".$field_minlength." characters";
+				return null;
+			}
+			if($field_maxlength !== null && strlen($value) > $field_maxlength)
+			{
+				$error = $field." field cannot be longer than ".$field_maxlength." characters";
+				return null;
+			}
+			
 			if(is_array($field_type))
 			{
 				//value can be any one from an array of values
