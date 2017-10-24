@@ -3,9 +3,8 @@
 function DOMNode_getChildElements($node, $tagname=null)
 {
 	$childElements = [];
-	for($i=0; $i<$node->childNodes->length; $i++)
+	foreach($node->childNodes as $childNode)
 	{
-		$childNode = $node->childNodes->item($i);
 		if($childNode->nodeType == XML_ELEMENT_NODE)
 		{
 			if($tagname==null)
@@ -23,9 +22,8 @@ function DOMNode_getChildElements($node, $tagname=null)
 
 function DOMNode_getFirstChildElement($node, $tagname=null)
 {
-	for($i=0; $i<$node->childNodes->length; $i++)
+	foreach($node->childNodes as $childNode)
 	{
-		$childNode = $node->childNodes->item($i);
 		if($childNode->nodeType == XML_ELEMENT_NODE)
 		{
 			if($tagname==null)
