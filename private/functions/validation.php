@@ -76,6 +76,15 @@ function validate_data($requestdata, $fields, &$error)
 				}
 				$validated_data[$field] = boolval($value);
 			}
+			else if($field_type=="email")
+			{
+				if(filter_var($value, FILTER_VALIDATE_EMAIL)===false)
+				{
+					$error = "invalid value ".$value." for field ".$field;
+					return null;
+				}
+				$validated_data[$field] = ''.$value;
+			}
 			else
 			{
 				$error = "unknown field_type ".$field_type;
