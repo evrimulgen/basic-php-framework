@@ -166,8 +166,12 @@ class User
 			$error = "internal error";
 			return false;
 		}
+		$result->free();
+		
+		//send validation email
 		$user = self::get_user_by_email($email);
 		$user->email_validation_code($error);
+		
 		return true;
 	}
 
@@ -198,7 +202,7 @@ class User
 		}
 		
 		//find user
-		$user = get_user_by_username($usernae);
+		$user = self::get_user_by_username($usernae);
 		if($user==null)
 		{
 			$error = "Invalid username / password";
@@ -218,7 +222,7 @@ class User
 		}
 		
 		//start session
-		if(!self::start_session($username, $error))
+		if(!self::start_session($user->id, $error))
 		{
 			return false;
 		}
@@ -280,7 +284,7 @@ class User
 			return false;
 		}
 		$result->free();
-		if(!self::start_session($user->username, $error))
+		if(!self::start_session($user->id, $error))
 		{
 			return false;
 		}
