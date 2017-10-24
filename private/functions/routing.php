@@ -1,16 +1,49 @@
 <?php
 
+function set_api_params_provider($provider_func)
+{
+	$GLOBALS["__params_provider_func"] = $provider_func;
+}
+
+function get_api_params_provider()
+{
+	if(!isset($GLOBALS["__params_provider_func"]))
+	{
+		return null;
+	}
+	$provider_func = $GLOBALS["__params_provider_func"];
+	if($provider_func===null)
+	{
+		return null;
+	}
+	return $provider_func;
+}
+
+function get_api_params(&$error = null)
+{
+	$provider_func = get_api_params_provider();
+	if($provider_func==null)
+	{
+		return $_POST;
+	}
+	return $provider_func($error);
+}
+
 function do_api_call($version, $endpoint, $params)
 {
-	$old_post = $_POST;
-	$_POST = $params;
+	$old_param_provider = get_api_params_provider();
+	set_api_params_provider(function(&$error){
+		return $GLOBALS["__tmp_api_params"];
+	});
+	$GLOBALS["__tmp_api_params"] = $params;
 	$file_path = PRIVATE_DIR.'/api/'.$version.'/'.$endpoint.'.php';
 	$result = null;
 	if(file_exists($file_path))
 	{
 		$result = include($file_path);
 	}
-	$_POST = $old_post;
+	unset($GLOBALS["__tmp_api_params"]);
+	set_api_params_provider($old_param_provider);
 	return $result;
 }
 
