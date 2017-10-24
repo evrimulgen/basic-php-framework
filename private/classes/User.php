@@ -202,7 +202,7 @@ class User
 		}
 		
 		//find user
-		$user = self::get_user_by_username($usernae);
+		$user = self::get_user_by_username($username);
 		if($user==null)
 		{
 			$error = "Invalid username / password";
