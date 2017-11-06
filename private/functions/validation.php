@@ -5,10 +5,31 @@ function validate_data($requestdata, $fields, &$error)
 	$validated_data = [];
 	foreach($fields as $field => $field_info)
 	{
-		$field_required = $field_info["req"] ?? false;
-		$field_type = $field_info["type"] ?? "string";
-		$field_minlength = $field_info["minlength"] ?? null;
-		$field_maxlength = $field_info["maxlength"] ?? null;
+		$field_required = false;
+		if(isset($field_info["req"]))
+		{
+			$field_required = $field_info["req"];
+		}
+		$field_type = "string";
+		if(isset($field_info["type"]))
+		{
+			$field_type = $field_info["type"];
+		}
+		$field_minlength = null;
+		if(isset($field_info["minlength"]))
+		{
+			$field_minlength = $field_info["minlength"];
+		}
+		$field_maxlength = null;
+		if(isset($field_info["maxlength"]))
+		{
+			$field_maxlength = $field_info["maxlength"];
+		}
+		$field_name = $field;
+		if(isset($field_info["rename"]))
+		{
+			$field_name = $field_info["rename"];
+		}
 		
 		if(isset($requestdata[$field]))
 		{
@@ -43,11 +64,11 @@ function validate_data($requestdata, $fields, &$error)
 					$error = "invalid value ".$value." for field ".$field;
 					return null;
 				}
-				$validated_data[$field] = $value;
+				$validated_data[$field_name] = $value;
 			}
 			else if($field_type=="string")
 			{
-				$validated_data[$field] = ''.$value;
+				$validated_data[$field_name] = ''.$value;
 			}
 			else if($field_type=="float")
 			{
@@ -56,7 +77,7 @@ function validate_data($requestdata, $fields, &$error)
 					$error = "invalid value ".$value." for field ".$field;
 					return null;
 				}
-				$validated_data[$field] = floatval($value);
+				$validated_data[$field_name] = floatval($value);
 			}
 			else if($field_type=="integer")
 			{
@@ -65,7 +86,7 @@ function validate_data($requestdata, $fields, &$error)
 					$error = "invalid value ".$value." for field ".$field;
 					return null;
 				}
-				$validated_data[$field] = intval($value);
+				$validated_data[$field_name] = intval($value);
 			}
 			else if($field_type=="uinteger")
 			{
@@ -80,7 +101,7 @@ function validate_data($requestdata, $fields, &$error)
 					$error = "invalid value ".$value." for field ".$field;
 					return null;
 				}
-				$validated_data[$field] = intval($value);
+				$validated_data[$field_name] = intval($value);
 			}
 			else if($field_type=="bool")
 			{
@@ -89,7 +110,7 @@ function validate_data($requestdata, $fields, &$error)
 					$error = "invalid value ".$value." for field ".$field;
 					return null;
 				}
-				$validated_data[$field] = boolval($value);
+				$validated_data[$field_name] = boolval($value);
 			}
 			else if($field_type=="email")
 			{
@@ -98,7 +119,7 @@ function validate_data($requestdata, $fields, &$error)
 					$error = "invalid value ".$value." for field ".$field;
 					return null;
 				}
-				$validated_data[$field] = ''.$value;
+				$validated_data[$field_name] = ''.$value;
 			}
 			else
 			{
