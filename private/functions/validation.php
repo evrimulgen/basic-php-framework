@@ -118,7 +118,7 @@ function validate_data($requestdata, $fields, &$error)
 				}
 				$validated_data[$field_name] = $newval;
 			}
-			else if($field_type=="bool")
+			else if($field_type=="boolean")
 			{
 				if(filter_var($value, FILTER_VALIDATE_BOOLEAN)===false)
 				{
