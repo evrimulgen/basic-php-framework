@@ -8,7 +8,7 @@ if(!file_exists(__DIR__."/env.php"))
 	error_log("No env.php file found. Creating development env.php.");
 	copy(__DIR__."/env.php.example", $env_loc);
 }
-require_once(__DIR__."/env.php");
+include(__DIR__."/env.php");
 if(empty($environment))
 {
 	error_log("No environment variable found. Using \"development\" as default");
@@ -55,5 +55,3 @@ foreach($class_files as $file)
 
 //resume User session
 User::resume_session();
-
-?>
