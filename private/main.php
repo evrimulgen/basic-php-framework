@@ -22,7 +22,7 @@ $credentials = json_decode(file_get_contents(__DIR__."/credentials.json"), true)
 $mysql_creds = $credentials["mysql"];
 if(!empty($mysql_creds) && !empty($mysql_creds["host"]))
 {
-	$mysql = new mysqli($mysql_creds["host"], $mysql_creds["username"], $mysql_creds["password"], $mysql_creds["schema"]);
+	$mysql = new mysqli($mysql_creds["host"], $mysql_creds["username"], $mysql_creds["password"], $mysql_creds["schema"], $mysql_creds["port"]);
 	if($mysql->connect_errno)
 	{
 		error_log("unable to connect to mysql: ".$mysql->connect_error);

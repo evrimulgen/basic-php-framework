@@ -3,8 +3,8 @@ create table user
 (
 	id int(32) not null auto_increment,
 	firstname varchar(50),
-    lastname varchar(50),
-    username varchar(50),
+	lastname varchar(50),
+	username varchar(50),
 	email varchar(50) not null,
 	password varchar(255) not null,
 	validation_code varchar(32),
