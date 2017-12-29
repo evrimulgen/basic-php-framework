@@ -71,4 +71,3 @@ function DOMNode_getElementsInPath($node, $path)
 	return [];
 }
 
-?>

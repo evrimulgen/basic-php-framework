@@ -92,4 +92,3 @@ function perform_routing()
 	return false;
 }
 
-?>

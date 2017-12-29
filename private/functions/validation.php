@@ -151,4 +151,3 @@ function validate_data($requestdata, $fields, &$error)
 	return $validated_data;
 }
 
-?>

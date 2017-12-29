@@ -2,4 +2,3 @@
 
 echo "ayy lmao"
 
-?>

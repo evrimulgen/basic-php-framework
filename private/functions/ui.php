@@ -34,4 +34,3 @@ function display_footer($name="default")
 	display_template_part('footer-'.$name);
 }
 
-?>

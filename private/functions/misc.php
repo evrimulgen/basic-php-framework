@@ -65,4 +65,3 @@ function str_endswith($haystack, $needle)
     return strrpos($haystack, $needle) + strlen($needle) === strlen($haystack);
 }
 
-?>
