@@ -380,3 +380,6 @@ class User
 	}
 }
 
+//resume User session
+User::resume_session();
+

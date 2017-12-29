@@ -53,6 +53,3 @@ foreach($class_files as $file)
 	}
 }
 
-//resume User session
-User::resume_session();
-
